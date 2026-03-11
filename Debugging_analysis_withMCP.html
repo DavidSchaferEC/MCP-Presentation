@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPREG Organic Input Distribution — Execution Error Analysis</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a2e;
+    --accent: #0f3460;
+    --accent2: #e94560;
+    --code-bg: #f4f4f8;
+    --table-head: #0f3460;
+    --table-alt: #f0f4fa;
+    --border: #d0d0d8;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.65;
+    color: var(--fg);
+    background: var(--bg);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2.5rem;
+  }
+  h1 { color: var(--accent); border-bottom: 3px solid var(--accent2); padding-bottom: 0.5rem; }
+  h2 { color: var(--accent); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { color: var(--accent2); }
+  code {
+    background: var(--code-bg);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.92em;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    border-radius: 6px;
+    font-size: 0.88em;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.92em;
+  }
+  th {
+    background: var(--table-head);
+    color: #fff;
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+  }
+  td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:nth-child(even) td { background: var(--table-alt); }
+  .badge {
+    display: inline-block;
+    padding: 0.15em 0.6em;
+    border-radius: 12px;
+    font-size: 0.82em;
+    font-weight: 600;
+  }
+  .badge-ok { background: #d4edda; color: #155724; }
+  .badge-err { background: #f8d7da; color: #721c24; }
+  .badge-warn { background: #fff3cd; color: #856404; }
+  .chain-box {
+    background: linear-gradient(135deg, #f0f4fa, #e8ecf4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin: 1rem 0;
+    font-family: 'Cascadia Code', monospace;
+    font-size: 0.88em;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .meta-table td:first-child { font-weight: 600; width: 180px; }
+  .neg { color: var(--danger); font-weight: 600; }
+  .pos { color: var(--success); font-weight: 600; }
+  .arrow { color: var(--accent2); font-weight: bold; }
+  details {
+    margin: 0.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  details[open] summary { margin-bottom: 0.5rem; }
+  .section-num {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    width: 1.8em;
+    height: 1.8em;
+    line-height: 1.8em;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 0.5em;
+    font-size: 0.9em;
+  }
+  hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+</style>
+</head>
+<body>
+
+<h1>CAPREG Organic Input Distribution — Execution Error Analysis</h1>
+
+<table class="meta-table">
+  <tr><td>Date</td><td>March 11, 2026</td></tr>
+  <tr><td>Module</td><td><code>dist_input_solve.gms</code> (called from <code>capreg.gms</code>)</td></tr>
+  <tr><td>Country affected</td><td>Cyprus (CY)</td></tr>
+  <tr><td>Listing file</td><td><code>capreg_org.lst</code></td></tr>
+  <tr><td>GDX data verified</td><td><code>debug_totRev_CYorg.gdx</code>, <code>debug_expCosts_CYorg.gdx</code>, <code>debug_expRev_CYorg.gdx</code></td></tr>
+</table>
+
+<hr>
+
+<h2><span class="section-num">1</span> The GAMS Error</h2>
+
+<p>The model <code>m_hpdInputs</code> <strong>aborts at year 2010</strong> with <strong>30 instances</strong> of:</p>
+
+<pre><code>**** Matrix error - lower bound &gt; upper bound</code></pre>
+
+<p>on variable <code>v_betas(EAA_REL, &lt;activity&gt;org, &lt;input&gt;org, 2010)</code>.</p>
+<p>The SOLVE at <strong>line 56444</strong> terminates with <code>EXECERROR = 30</code>.</p>
+
+<h3>Affected Activity–Input Combinations (all year 2010)</h3>
+
+<table>
+  <tr><th>Activity</th><th>Inputs</th></tr>
+  <tr><td><code>OFARorg</code> (other farm activities)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>OLIVorg</code> (olives)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>PULSorg</code> (pulses)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>OVEGorg</code> (other vegetables)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>OFRUorg</code> (other fruit)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>CITRorg</code> (citrus)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>SHGMorg</code> (sheep &amp; goat milk)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>SHGForg</code> (sheep &amp; goat fattening)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>HENSorg</code> (laying hens)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+  <tr><td><code>POUForg</code> (poultry fattening)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+</table>
+
+<hr>
+
+<h2><span class="section-num">2</span> The Bound-Setting Code (Direct Cause)</h2>
+
+<p><strong>File:</strong> <code>gams/inputs/dist_input_solve.gms</code>, lines 33–37</p>
+
+<pre><code>v_betas.LO("EAA_REL",E_PACT,EST_I,EYEARS) $ p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS)
+    = 0.20 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS);
+
+v_betas.UP("EAA_REL",E_PACT,EST_I,EYEARS) $ p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS)
+    = 5.00 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS);</code></pre>
+
+<p>This code <strong>assumes <code>p_supports</code> is positive</strong>:</p>
+
+<table>
+  <tr><th>Sign of <code>p_supports</code></th><th>LO = 0.20×</th><th>UP = 5.00×</th><th>Result</th></tr>
+  <tr><td><span class="pos">Positive</span></td><td>small positive</td><td>large positive</td><td><span class="badge badge-ok">LO &lt; UP ✓</span></td></tr>
+  <tr><td><span class="neg">Negative</span></td><td>small negative (closer to 0)</td><td>large negative (farther from 0)</td><td><span class="badge badge-err">LO &gt; UP ✗</span></td></tr>
+</table>
+
+<h3>Numerical Example</h3>
+<p>For <code>v_betas(EAA_REL, OFARorg, REPMorg, 2010)</code> with <code>p_supports</code> Mean ≈ <span class="neg">−10.10</span>:</p>
+<ul>
+  <li>LO = 0.20 × (−10.10) = <span class="neg">−2.02</span></li>
+  <li>UP = 5.00 × (−10.10) = <span class="neg">−50.48</span></li>
+  <li>−2.02 &gt; −50.48 → <span class="badge badge-err">bound error</span></li>
+</ul>
+
+<hr>
+
+<h2><span class="section-num">3</span> Root Cause Chain — Why <code>p_supports</code> Becomes Negative</h2>
+
+<h3>Step A: <code>p_SectorCostsFromEAA</code> — Always Positive <span class="badge badge-ok">✓</span></h3>
+
+<p><strong>File:</strong> <code>gams/inputs/dist_input_prep_prior.gms</code>, lines 29–53</p>
+
+<pre><code>p_SectorCostsFromEAA(est_r,YEARS) = DATA("%MSLONG%","EAAB",est_r,YEARS) 
+                                     $ DATA("%MSLONG%","EAAP",est_r,YEARS);</code></pre>
+
+<p>EAA (Economic Accounts for Agriculture) national expenditures — inherently <span class="pos">positive</span>.</p>
+
+<details>
+<summary>GDX Data: <code>debug_totRev_CYorg.gdx</code> → <code>p_SectorCostsFromEAA</code> (2010)</summary>
+<table>
+  <tr><th>Input</th><th>CY Organic 2010 (Mio €)</th></tr>
+  <tr><td><code>FEEDorg</code></td><td class="pos">+2.346</td></tr>
+  <tr><td><code>SEEDorg</code></td><td class="pos">+0.321</td></tr>
+  <tr><td><code>PLAPorg</code></td><td class="pos">+0.192</td></tr>
+  <tr><td><code>REPMorg</code></td><td class="pos">+0.158</td></tr>
+  <tr><td><code>REPBorg</code></td><td class="pos">+0.023</td></tr>
+  <tr><td><code>INPOorg</code></td><td class="pos">+0.965</td></tr>
+  <tr><td><code>YANIorg</code></td><td class="pos">+0.027</td></tr>
+  <tr><td><strong>Total subtracted</strong></td><td><strong>≈ 3.87</strong></td></tr>
+</table>
+</details>
+
+<h3>Step B: <code>p_totRev</code> — Goes Negative <span class="badge badge-err">✗</span></h3>
+
+<p><strong>File:</strong> <code>gams/inputs/dist_input_prep_prior.gms</code>, lines 148–162</p>
+
+<pre><code>p_totRev(est_r_org,YEARS) = Σ(capped_revenue × area) / 1000
+    − p_SectorCostsFromEAA("FEEDorg")    ← 2.346
+    − p_SectorCostsFromEAA("SEEDorg")    ← 0.321
+    − p_SectorCostsFromEAA("PLAPorg")    ← 0.192
+    − p_SectorCostsFromEAA("IPHAorg")    ← 0.000
+    − p_SectorCostsFromEAA("FERTorg")    ← 0.000
+    − p_SectorCostsFromEAA("YANIorg")    ← 0.027</code></pre>
+
+<p>For CY in 2010, organic activity levels are <strong>extremely small</strong>:</p>
+
+<details open>
+<summary>GDX Data: Organic Activity Levels &amp; Revenues (CY, 2010)</summary>
+<table>
+  <tr><th>Activity</th><th><code>p_expRev</code> (€/unit)</th><th><code>LEVL</code> (1000 units)</th><th>Revenue (Mio €)</th></tr>
+  <tr><td><code>OVEGorg</code></td><td>36,581</td><td>0.006</td><td>0.231</td></tr>
+  <tr><td><code>HENSorg</code></td><td>142,377</td><td>0.004</td><td>0.572</td></tr>
+  <tr><td><code>OLIVorg</code></td><td>228</td><td>0.411</td><td>0.094</td></tr>
+  <tr><td><code>OFARorg</code></td><td>56</td><td>0.642</td><td>0.036</td></tr>
+  <tr><td><code>CITRorg</code></td><td>3,264</td><td>0.040</td><td>0.130</td></tr>
+  <tr><td><code>OFRUorg</code></td><td>1,234</td><td>0.060</td><td>0.074</td></tr>
+  <tr><td><code>PULSorg</code></td><td>386</td><td>0.007</td><td>0.003</td></tr>
+  <tr><td><code>SHGMorg</code></td><td>11</td><td>5.637</td><td>0.060</td></tr>
+  <tr><td><code>SHGForg</code></td><td>11</td><td>2.737</td><td>0.030</td></tr>
+  <tr><td><code>POUForg</code></td><td>178</td><td>0.005</td><td>0.001</td></tr>
+  <tr><td colspan="3"><strong>Σ revenue</strong></td><td><strong>≈ 1.23</strong></td></tr>
+  <tr><td colspan="3"><strong>Σ subtracted costs</strong></td><td><strong>≈ 2.89</strong></td></tr>
+</table>
+</details>
+
+<p><strong>Result:</strong> <code>p_totRev = 1.23 − 2.89 =</code> <span class="neg">−1.65</span></p>
+
+<details>
+<summary>GDX Data: <code>debug_totRev_CYorg.gdx</code> → <code>p_totRev</code> (all years)</summary>
+<table>
+  <tr><th>Year</th><th><code>REPMorg</code> / <code>REPBorg</code> / <code>INPOorg</code></th><th>Status</th></tr>
+  <tr><td>2002</td><td class="neg">−1.058</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2003</td><td class="neg">−0.890</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2004</td><td class="neg">−0.878</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2005</td><td class="neg">−3.152</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2006</td><td class="neg">−1.625</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2007</td><td class="neg">−3.062</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2008</td><td class="neg">−2.672</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2009</td><td class="neg">−6.887</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2010</td><td class="neg">−1.648</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2011</td><td class="neg">−1.131</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2012</td><td class="pos">+0.812</td><td><span class="badge badge-ok">Positive</span></td></tr>
+  <tr><td>2013</td><td class="pos">+2.693</td><td><span class="badge badge-ok">Positive</span></td></tr>
+  <tr><td>2014</td><td class="pos">+5.968</td><td><span class="badge badge-ok">Positive</span></td></tr>
+  <tr><td>2015</td><td class="neg">−1.864</td><td><span class="badge badge-err">Negative</span></td></tr>
+  <tr><td>2016</td><td class="neg">−2.223</td><td><span class="badge badge-err">Negative</span></td></tr>
+</table>
+</details>
+
+<h3>Step C: <code>p_expCostsFromSectorRelations</code> — Becomes Negative <span class="badge badge-err">✗</span></h3>
+
+<p><strong>File:</strong> <code>gams/inputs/dist_input_prep_prior.gms</code>, lines 429–445</p>
+
+<pre><code>p_expCostsFromSectorRelations(E_PACT_org, est_r_org, YEARS)
+    = p_SectorCostsFromEAA(est_r_org) / p_totRev(est_r_org)
+      × MIN(20000, MAX(p_expRev × 0.1, residual_revenue));</code></pre>
+
+<p>When <code>p_SectorCostsFromEAA</code> &gt; 0 and <code>p_totRev</code> &lt; 0: <code>+0.158 / −1.648 =</code> <span class="neg">−0.096</span> → entire expression is <strong>negative</strong>.</p>
+
+<details>
+<summary>GDX Data: <code>debug_expCosts_CYorg.gdx</code> → <code>p_expCostsFromSectorRelations</code> (2010)</summary>
+<table>
+  <tr><th>Activity</th><th><code>REPMorg</code></th><th><code>REPBorg</code></th><th><code>INPOorg</code></th></tr>
+  <tr><td><code>OFARorg</code></td><td class="neg">−9.95</td><td class="neg">−1.46</td><td class="neg">−60.70</td></tr>
+  <tr><td><code>OLIVorg</code></td><td class="neg">−118.29</td><td class="neg">−17.36</td><td class="neg">−721.71</td></tr>
+  <tr><td><code>PULSorg</code></td><td class="neg">−283.96</td><td class="neg">−41.68</td><td class="neg">−1,732.49</td></tr>
+  <tr><td><code>OVEGorg</code></td><td class="neg">−1,919.91</td><td class="neg">−281.81</td><td class="neg">−11,713.95</td></tr>
+  <tr><td><code>OFRUorg</code></td><td class="neg">−215.64</td><td class="neg">−31.65</td><td class="neg">−1,315.66</td></tr>
+  <tr><td><code>CITRorg</code></td><td class="neg">−536.74</td><td class="neg">−78.78</td><td class="neg">−3,274.81</td></tr>
+  <tr><td><code>SHGMorg</code></td><td class="neg">−0.11</td><td class="neg">−0.02</td><td class="neg">−0.66</td></tr>
+  <tr><td><code>SHGForg</code></td><td class="neg">−0.06</td><td class="neg">−0.01</td><td class="neg">−0.37</td></tr>
+  <tr><td><code>HENSorg</code></td><td class="neg">−654.23</td><td class="neg">−96.02</td><td class="neg">−3,989.95</td></tr>
+  <tr><td><code>POUForg</code></td><td class="neg">−0.82</td><td class="neg">−0.12</td><td class="neg">−4.99</td></tr>
+</table>
+</details>
+
+<h3>Step D: <code>p_supports</code> — Inherits Negative Value</h3>
+
+<p><strong>File:</strong> <code>gams/inputs/dist_input_equations.gms</code>, lines 324–325</p>
+
+<pre><code>p_supports("EAA_REL",E_PACT,EST_i,"Mean",EYEARS) $ pact_to_i(E_PACT,EST_i)
+    = p_expCostsFromSectorRelations(E_PACT,EST_i,EYEARS);</code></pre>
+
+<p>Direct assignment — <strong>no sign guard</strong>. Negative values flow straight into the bounds.</p>
+
+<hr>
+
+<h2><span class="section-num">4</span> The Bound-Widening Loop Makes It Worse</h2>
+
+<p><strong>File:</strong> <code>gams/inputs/dist_input_solve.gms</code>, lines 134–140</p>
+
+<pre><code>v_betas.lo(...) = v_betas.lo(...) * 0.9**p_nSolved(years);
+v_betas.up(...) = v_betas.up(...) * 1.1**p_nSolved(years);</code></pre>
+
+<p>When both bounds are <span class="neg">negative</span>:</p>
+<ul>
+  <li>Multiplying LO (−2.02) by 0.9 → −1.82 (moves <strong>toward</strong> zero, <em>increases</em> LO)</li>
+  <li>Multiplying UP (−50.48) by 1.1 → −55.53 (moves <strong>away</strong> from zero, <em>decreases</em> UP)</li>
+</ul>
+<p>This <strong>widens</strong> the LO &gt; UP gap with each solve iteration.</p>
+
+<hr>
+
+<h2><span class="section-num">5</span> Why Only Year 2010 and Only Cyprus?</h2>
+
+<h3>Year 2010</h3>
+<p>Year 2010 is the first year in the organic solve loop where CY organic activities have non-zero levels. Years 1998–2009 are solved for <strong>conventional</strong> activities and succeed. Year 2010 triggers organic input allocation for the first time, but CY's tiny organic sector cannot sustain the expected cost allocations.</p>
+
+<h3>Small Member States</h3>
+<p>CY has an extremely small organic sector (activity levels of 0.004–5.6 units). The summed organic revenues (~1.23 Mio €) are insufficient to cover subtracted organic EAA sectoral costs (~2.89 Mio €).</p>
+
+<p><strong>Comparison with Austria:</strong> <code>p_totRev(REPMorg, 2010)</code> = <span class="pos">+430.0</span> — AT's organic sector is large enough → no error.</p>
+
+<hr>
+
+<h2><span class="section-num">6</span> Summary Diagram</h2>
+
+<div class="chain-box">CY has very small organic sector
+  <span class="arrow">→</span> LEVL values tiny (0.004 to 5.6)
+  <span class="arrow">→</span> Σ(p_expRev × LEVL)/1000 ≈ <span class="pos">1.23</span> Mio €
+  <span class="arrow">→</span> Subtracted EAA costs ≈ <span class="neg">2.89</span> Mio €
+  <span class="arrow">→</span> p_totRev(REPMorg/REPBorg/INPOorg, 2010) = <span class="neg">−1.648</span>
+  <span class="arrow">→</span> p_expCostsFromSectorRelations = (+0.158) / (−1.648) × rev_term = <span class="neg">NEGATIVE</span>
+  <span class="arrow">→</span> p_supports("EAA_REL",...,"Mean",...) = <span class="neg">NEGATIVE</span>
+  <span class="arrow">→</span> v_betas.LO = 0.20 × negative = <span class="neg">−2.02</span>  (closer to 0)
+     v_betas.UP = 5.00 × negative = <span class="neg">−50.48</span> (farther from 0)
+  <span class="arrow">→</span> LO &gt; UP <span class="arrow">→</span> <span class="badge badge-err">GAMS SOLVE ABORTED (EXECERROR=30)</span></div>
+
+<hr>
+
+<h2><span class="section-num">7</span> Relevant Source Locations</h2>
+
+<table>
+  <tr><th>What</th><th>File</th><th>Lines</th></tr>
+  <tr><td><code>p_SectorCostsFromEAA</code> definition</td><td><code>gams/inputs/dist_input_prep_prior.gms</code></td><td>29–53</td></tr>
+  <tr><td><code>p_totRev</code> organic "remaining" inputs</td><td><code>gams/inputs/dist_input_prep_prior.gms</code></td><td>148–162</td></tr>
+  <tr><td><code>p_expCostsFromSectorRelations</code> organic</td><td><code>gams/inputs/dist_input_prep_prior.gms</code></td><td>429–445</td></tr>
+  <tr><td><code>p_supports</code> ← <code>p_expCostsFromSectorRelations</code></td><td><code>gams/inputs/dist_input_equations.gms</code></td><td>324–325</td></tr>
+  <tr><td><code>v_betas</code> LO/UP bounds (EAA_REL)</td><td><code>gams/inputs/dist_input_solve.gms</code></td><td>33–37</td></tr>
+  <tr><td>Bound-widening loop</td><td><code>gams/inputs/dist_input_solve.gms</code></td><td>134–140</td></tr>
+  <tr><td>Debug GDX unload (<code>p_totRev</code>)</td><td><code>gams/inputs/dist_input_prep_prior.gms</code></td><td>184–185</td></tr>
+  <tr><td>Debug GDX unload (<code>p_expCosts</code>)</td><td><code>gams/inputs/dist_input_prep_prior.gms</code></td><td>467–468</td></tr>
+</table>
+
+<hr>
+
+<h2><span class="section-num">8</span> GDX Data Sources Used</h2>
+
+<table>
+  <tr><th>GDX File</th><th>Parameters</th><th>Key Finding</th></tr>
+  <tr><td><code>debug_totRev_CYorg.gdx</code></td><td><code>p_totRev</code>, <code>p_SectorCostsFromEAA</code>, <code>p_expRev</code></td><td><code>p_totRev</code> negative for all org inputs in CY</td></tr>
+  <tr><td><code>debug_expCosts_CYorg.gdx</code></td><td><code>p_expCostsFromSectorRelations</code></td><td>Large negative values for all org activities</td></tr>
+  <tr><td><code>debug_expRev_CYorg.gdx</code></td><td><code>p_expRev</code>, <code>DATA</code> (incl. <code>LEVL</code>)</td><td>Tiny organic activity levels in CY</td></tr>
+  <tr><td><code>debug_totRev_ATorg.gdx</code></td><td><code>p_totRev</code></td><td>Positive <code>p_totRev</code> for AT — no error</td></tr>
+</table>
+
+<hr>
+
+<h2><span class="section-num">9</span> Possible Fixes</h2>
+
+<h3>Option A — Guard the Bounds (symptom fix)</h3>
+<p>In <code>dist_input_solve.gms</code> (lines 33–37), use MIN/MAX to ensure correct ordering:</p>
+<pre><code>v_betas.LO("EAA_REL",E_PACT,EST_I,EYEARS) $ p_supports(...)
+    = MIN(0.20 * p_supports(...), 5.00 * p_supports(...));
+
+v_betas.UP("EAA_REL",E_PACT,EST_I,EYEARS) $ p_supports(...)
+    = MAX(0.20 * p_supports(...), 5.00 * p_supports(...));</code></pre>
+
+<h3>Option B — Clamp <code>p_totRev</code> (root cause fix)</h3>
+<p>In <code>dist_input_prep_prior.gms</code> (after line 162):</p>
+<pre><code>p_totRev(est_r_org,YEARS) $ (p_totRev(est_r_org,YEARS) LT 0) = EPS;</code></pre>
+
+<h3>Option C — Guard <code>p_expCostsFromSectorRelations</code> (intermediate fix)</h3>
+<p>In <code>dist_input_prep_prior.gms</code> (line 429), add condition:</p>
+<pre><code>... $ (p_totRev(est_r_org,YEARS) GT 0) ...</code></pre>
+
+<h3>Recommendation</h3>
+<p><strong>Option B + Option A</strong> combined: Option B prevents economically nonsensical negative total revenues at the source; Option A provides a safety net at the bounds level regardless of upstream data quality.</p>
+
+</body>
+</html>

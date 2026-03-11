@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPREG Organic Input Distribution — Execution Error Analysis</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1e1e1e;
+    --accent: #0066cc;
+    --accent-light: #e8f0fe;
+    --border: #d0d7de;
+    --code-bg: #f6f8fa;
+    --table-stripe: #f6f8fa;
+    --error-bg: #fff5f5;
+    --error-border: #d73a49;
+    --success-bg: #f0fff4;
+    --success-border: #28a745;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--fg);
+    background: var(--bg);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  h1 { font-size: 1.8rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
+  h2 { font-size: 1.35rem; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--accent); }
+  h3 { font-size: 1.1rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+  p, li { margin-bottom: 0.5rem; }
+  ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+  a { color: var(--accent); }
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+  }
+  th { background: var(--accent-light); font-weight: 600; }
+  tr:nth-child(even) td { background: var(--table-stripe); }
+  blockquote {
+    border-left: 4px solid var(--error-border);
+    background: var(--error-bg);
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    border-radius: 0 6px 6px 0;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.88rem;
+  }
+  .meta { color: #586069; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .meta span { display: inline-block; margin-right: 1.5rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .diagram-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    white-space: pre;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .fix-box {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .fix-box h3 { color: #22863a; margin-top: 0; }
+</style>
+</head>
+<body>
+
+<h1>CAPREG Organic Input Distribution — Execution Error Analysis</h1>
+<div class="meta">
+  <span><strong>Date:</strong> March 11, 2026</span>
+  <span><strong>Module:</strong> <code>capreg_inputs</code></span>
+  <span><strong>Country:</strong> Cyprus (CY)</span>
+  <span><strong>Listing:</strong> <code>capreg_org.lst</code></span>
+</div>
+
+<hr>
+
+<h2>1. The GAMS Error</h2>
+<p>In <code>capreg_org.lst</code> (line 66684), the model <code>m_hpdInputs</code> <strong>aborts at year 2010</strong> with 30 instances of:</p>
+
+<blockquote>**** Matrix error - lower bound &gt; upper bound</blockquote>
+
+<p>on variable <code>v_betas(EAA_REL, &lt;activity&gt;org, &lt;input&gt;org, 2010)</code>. The solve is invoked from <strong>line 56444</strong> and terminates with <strong>EXECERROR = 30</strong>.</p>
+
+<h3>Affected Variables</h3>
+<table>
+  <thead><tr><th>Activity</th><th>Inputs Affected</th></tr></thead>
+  <tbody>
+    <tr><td><code>OFARorg</code> (other farm activities)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+    <tr><td><code>OLIVorg</code> (olives)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+    <tr><td><code>SHGMorg</code>, <code>SHGForg</code> (sheep/goats)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+    <tr><td><code>HENSorg</code> (laying hens)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+    <tr><td><code>POUForg</code> (poultry fattening)</td><td><code>REPMorg</code>, <code>REPBorg</code>, <code>INPOorg</code></td></tr>
+    <tr><td>… and more</td><td></td></tr>
+  </tbody>
+</table>
+<p>Year 2009 solves successfully; the error appears only at 2010.</p>
+
+<hr>
+
+<h2>2. The Bound-Setting Code</h2>
+<p>In <code>dist_input_solve.gms</code> (lines 33–37):</p>
+<pre><code>v_betas.LO("EAA_REL",E_PACT,EST_I,EYEARS)  $ p_supports(...)
+    = 0.20 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS);
+
+v_betas.UP("EAA_REL",E_PACT,EST_I,EYEARS)  $ p_supports(...)
+    = 5.00 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS);</code></pre>
+
+<p>This <strong>assumes <code>p_supports</code> is positive</strong>:</p>
+<ul>
+  <li>If <strong>positive</strong>: LO = 0.20× (small), UP = 5.00× (large) → valid</li>
+  <li>If <strong>negative</strong>: LO = 0.20× (less negative, closer to 0), UP = 5.00× (more negative, farther from 0) → <strong>LO &gt; UP, invalid!</strong></li>
+</ul>
+
+<h3>Numerical Example from the Listing</h3>
+<p><code>v_betas(EAA_REL, OFARorg, REPMorg, 2010)</code>:</p>
+<ul>
+  <li><code>p_supports</code> Mean ≈ <strong>−10.10</strong></li>
+  <li>LO = 0.20 × (−10.10) = <strong>−2.02</strong></li>
+  <li>UP = 5.00 × (−10.10) = <strong>−50.48</strong></li>
+  <li>−2.02 &gt; −50.48 → <strong>bound error</strong></li>
+</ul>
+
+<hr>
+
+<h2>3. Why <code>p_supports</code> Becomes Negative — The Full Chain</h2>
+<p>The chain goes through three parameters, all computed in <code>dist_input_prep_prior.gms</code>:</p>
+
+<h3>Step A: <code>p_SectorCostsFromEAA</code> — Always Positive</h3>
+<pre><code>p_SectorCostsFromEAA(est_r,YEARS) = DATA("%MSLONG%","EAAB",est_r,YEARS) ...</code></pre>
+<p>These come from EAA (Economic Accounts for Agriculture) and represent total national expenditures on each input category. They are inherently <strong>positive</strong>.</p>
+<p><em>File: <code>dist_input_prep_prior.gms</code>, line ~34</em></p>
+
+<h3>Step B: <code>p_totRev</code> Goes Negative</h3>
+<p>For organic "remaining" inputs (REPM, REPB, INPO, etc.):</p>
+<pre><code>p_totRev(est_r_org,YEARS) = SUM(revenues from organic activities)
+    - p_SectorCostsFromEAA("FEEDorg",YEARS)
+    - p_SectorCostsFromEAA("SEEDorg",YEARS)
+    - p_SectorCostsFromEAA("PLAPorg",YEARS)
+    - p_SectorCostsFromEAA("IPHAorg",YEARS)
+    - p_SectorCostsFromEAA("FERTorg",YEARS)
+    - p_SectorCostsFromEAA("YANIorg",YEARS);</code></pre>
+
+<p>For <strong>Cyprus</strong> — a small member state with a tiny organic sector — the sum of expected revenues from organic activities is small, while the subtracted sectoral costs (feed, seed, fertilizer, etc.) can <strong>exceed the revenues</strong>. This makes <code>p_totRev</code> <strong>negative</strong> for the residual input categories in certain years.</p>
+<p><em>File: <code>dist_input_prep_prior.gms</code>, lines 149–162</em></p>
+
+<h3>Step C: <code>p_expCostsFromSectorRelations</code> Becomes Negative</h3>
+<pre><code>p_expCostsFromSectorRelations(E_PACT_org,est_r_org,YEARS)
+    = p_SectorCostsFromEAA(est_r_org,YEARS) / p_totRev(est_r_org,YEARS) * ...</code></pre>
+
+<p>When <code>p_SectorCostsFromEAA</code> is <strong>positive</strong> and <code>p_totRev</code> is <strong>negative</strong>, the ratio is <strong>negative</strong>. This negative value flows through without any sign guard.</p>
+<p><em>File: <code>dist_input_prep_prior.gms</code>, lines 429–443</em></p>
+
+<h3>Step D: <code>p_supports</code> Inherits the Negative Value</h3>
+<pre><code>p_supports("EAA_REL",E_PACT,EST_i,"Mean",EYEARS) $ pact_to_i(E_PACT,EST_i)
+    = p_expCostsFromSectorRelations(E_PACT,EST_i,EYEARS);</code></pre>
+<p>No sign check. The negative value is directly assigned.</p>
+<p><em>File: <code>dist_input_equations.gms</code>, lines 324–325</em></p>
+
+<hr>
+
+<h2>4. Why Only Year 2010 and Only Certain Countries?</h2>
+<ul>
+  <li><strong>Year 2010</strong> is the first year where Cyprus organic activity levels (and thus revenues) drop enough relative to sector costs to produce a negative <code>p_totRev</code>. Years 1998–2009 have either sufficient revenue or zero organic activity levels (skipping the solve altogether).</li>
+  <li><strong>Small member states</strong> like CY with very small organic sectors are most susceptible, because a handful of organic activities generate minimal revenue while sector-level EAA costs are proportioned from the total (non-organic) sector.</li>
+</ul>
+
+<hr>
+
+<h2>5. The Bound-Widening Loop Makes It Worse</h2>
+<p>In <code>dist_input_solve.gms</code> (lines 134–140), there is an iterative widening:</p>
+<pre><code>v_betas.lo(...) = v_betas.lo(...) * 0.9**p_nSolved(years);
+v_betas.up(...) = v_betas.up(...) * 1.1**p_nSolved(years);</code></pre>
+<p>When both bounds are negative:</p>
+<ul>
+  <li>Multiplying LO by 0.9 moves it <strong>toward</strong> zero (increases it)</li>
+  <li>Multiplying UP by 1.1 moves it <strong>away</strong> from zero (decreases it)</li>
+</ul>
+<p>This further <strong>widens</strong> the LO &gt; UP gap.</p>
+
+<hr>
+
+<h2>6. Summary Diagram</h2>
+<div class="diagram-box">Small organic sector in CY
+    → low organic revenue sum
+    → p_totRev(REPMorg, 2010) &lt; 0
+    → p_expCostsFromSectorRelations = positive_cost / negative_totRev = NEGATIVE
+    → p_supports("EAA_REL",...,"Mean",...) = NEGATIVE
+    → v_betas.LO = 0.20 × negative = −2.01  (closer to 0)
+       v_betas.UP = 5.00 × negative = −50.48 (farther from 0)
+    → LO &gt; UP  →  GAMS SOLVE ABORTED (EXECERROR=30)</div>
+
+<hr>
+
+<h2>7. Relevant Source Locations</h2>
+<table>
+  <thead><tr><th>What</th><th>File</th><th>Lines</th></tr></thead>
+  <tbody>
+    <tr><td>Bound setting (EAA_REL, 0.20/5.00)</td><td><code>dist_input_solve.gms</code></td><td>33–37</td></tr>
+    <tr><td>Bound setting (original)</td><td><code>dist_input.gms</code></td><td>1013–1017</td></tr>
+    <tr><td>Bound widening loop</td><td><code>dist_input_solve.gms</code></td><td>134–140</td></tr>
+    <tr><td>Bound widening (original)</td><td><code>dist_input.gms</code></td><td>1110–1116</td></tr>
+    <tr><td><code>p_supports</code> ← <code>p_expCostsFromSectorRelations</code></td><td><code>dist_input_equations.gms</code></td><td>324–325</td></tr>
+    <tr><td><code>p_expCostsFromSectorRelations</code> for remaining org inputs</td><td><code>dist_input_prep_prior.gms</code></td><td>429–448</td></tr>
+    <tr><td><code>p_totRev</code> for remaining org inputs (can go negative)</td><td><code>dist_input_prep_prior.gms</code></td><td>148–162</td></tr>
+    <tr><td><code>p_SectorCostsFromEAA</code> definitions</td><td><code>dist_input_prep_prior.gms</code></td><td>33–53</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>8. Possible Fixes</h2>
+
+<div class="fix-box">
+<h3>Option A — Guard the Bounds (symptom fix)</h3>
+<p>In <code>dist_input_solve.gms</code> (lines 33–37):</p>
+<pre><code>v_betas.LO("EAA_REL",E_PACT,EST_I,EYEARS) $ p_supports(...)
+    = MIN(0.20 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS),
+          5.00 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS));
+
+v_betas.UP("EAA_REL",E_PACT,EST_I,EYEARS) $ p_supports(...)
+    = MAX(0.20 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS),
+          5.00 * p_supports("EAA_REL",E_PACT,EST_I,"Mean",EYEARS));</code></pre>
+</div>
+
+<div class="fix-box">
+<h3>Option B — Clamp <code>p_totRev</code> Upstream (root cause fix)</h3>
+<p>In <code>dist_input_prep_prior.gms</code> (lines 149–162):</p>
+<pre><code>p_totRev(est_r_org,YEARS) = MAX(small_positive_epsilon, &lt;existing calculation&gt;);</code></pre>
+</div>
+
+<h3>Recommendation</h3>
+<p>A combination of both Option A and Option B provides the most robust approach. Option B prevents the economically nonsensical negative total revenue, while Option A ensures the solver never receives invalid bounds regardless of upstream data.</p>
+
+</body>
+</html>
